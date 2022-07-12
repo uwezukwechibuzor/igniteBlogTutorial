@@ -1,5 +1,6 @@
 /* eslint-disable */
-import { Reader, Writer } from "protobufjs/minimal";
+import { Reader, util, configure, Writer } from "protobufjs/minimal";
+import * as Long from "long";
 
 export const protobufPackage = "blog.blog";
 
@@ -9,7 +10,9 @@ export interface MsgCreatePost {
   body: string;
 }
 
-export interface MsgCreatePostResponse {}
+export interface MsgCreatePostResponse {
+  id: number;
+}
 
 const baseMsgCreatePost: object = { creator: "", title: "", body: "" };
 
@@ -100,10 +103,16 @@ export const MsgCreatePost = {
   },
 };
 
-const baseMsgCreatePostResponse: object = {};
+const baseMsgCreatePostResponse: object = { id: 0 };
 
 export const MsgCreatePostResponse = {
-  encode(_: MsgCreatePostResponse, writer: Writer = Writer.create()): Writer {
+  encode(
+    message: MsgCreatePostResponse,
+    writer: Writer = Writer.create()
+  ): Writer {
+    if (message.id !== 0) {
+      writer.uint32(8).uint64(message.id);
+    }
     return writer;
   },
 
@@ -114,6 +123,9 @@ export const MsgCreatePostResponse = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          message.id = longToNumber(reader.uint64() as Long);
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -122,18 +134,31 @@ export const MsgCreatePostResponse = {
     return message;
   },
 
-  fromJSON(_: any): MsgCreatePostResponse {
+  fromJSON(object: any): MsgCreatePostResponse {
     const message = { ...baseMsgCreatePostResponse } as MsgCreatePostResponse;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = Number(object.id);
+    } else {
+      message.id = 0;
+    }
     return message;
   },
 
-  toJSON(_: MsgCreatePostResponse): unknown {
+  toJSON(message: MsgCreatePostResponse): unknown {
     const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
     return obj;
   },
 
-  fromPartial(_: DeepPartial<MsgCreatePostResponse>): MsgCreatePostResponse {
+  fromPartial(
+    object: DeepPartial<MsgCreatePostResponse>
+  ): MsgCreatePostResponse {
     const message = { ...baseMsgCreatePostResponse } as MsgCreatePostResponse;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = 0;
+    }
     return message;
   },
 };
@@ -166,6 +191,16 @@ interface Rpc {
   ): Promise<Uint8Array>;
 }
 
+declare var self: any | undefined;
+declare var window: any | undefined;
+var globalThis: any = (() => {
+  if (typeof globalThis !== "undefined") return globalThis;
+  if (typeof self !== "undefined") return self;
+  if (typeof window !== "undefined") return window;
+  if (typeof global !== "undefined") return global;
+  throw "Unable to locate global object";
+})();
+
 type Builtin = Date | Function | Uint8Array | string | number | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
@@ -176,3 +211,15 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+function longToNumber(long: Long): number {
+  if (long.gt(Number.MAX_SAFE_INTEGER)) {
+    throw new globalThis.Error("Value is larger than Number.MAX_SAFE_INTEGER");
+  }
+  return long.toNumber();
+}
+
+if (util.Long !== Long) {
+  util.Long = Long as any;
+  configure();
+}
