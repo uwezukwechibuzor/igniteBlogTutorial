@@ -14,7 +14,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Check if the Post Exists for which a comment is being created
-	post, found := k.GetPost(ctx, msg.PostId)
+	post, found := k.GetPost(ctx, msg.PostID)
 	if !found {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}

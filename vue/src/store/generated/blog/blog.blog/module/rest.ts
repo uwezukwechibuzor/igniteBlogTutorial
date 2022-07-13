@@ -33,7 +33,10 @@ export interface BlogMsgCreatePostResponse {
   id?: string;
 }
 
-export type BlogMsgDeleteCommentResponse = object;
+export interface BlogMsgDeleteCommentResponse {
+  /** @format uint64 */
+  id?: string;
+}
 
 /**
  * Params defines the parameters for the module.
@@ -53,6 +56,24 @@ export interface BlogPost {
 }
 
 export interface BlogQueryAllCommentResponse {
+  Comment?: BlogComment[];
+
+  /**
+   * PageResponse is to be embedded in gRPC response messages where the
+   * corresponding request message has used PageRequest.
+   *
+   *  message SomeResponse {
+   *          repeated Bar results = 1;
+   *          PageResponse page = 2;
+   *  }
+   */
+  pagination?: V1Beta1PageResponse;
+}
+
+export interface BlogQueryCommentsResponse {
+  title?: string;
+  body?: string;
+  Post?: BlogPost;
   Comment?: BlogComment[];
 
   /**
@@ -404,6 +425,33 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     this.request<BlogQueryGetCommentResponse, RpcStatus>({
       path: `/blog/blog/comment/${id}`,
       method: "GET",
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryComments
+   * @summary Queries a list of Comments items.
+   * @request GET:/blog/blog/comments/{id}
+   */
+  queryComments = (
+    id: string,
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BlogQueryCommentsResponse, RpcStatus>({
+      path: `/blog/blog/comments/${id}`,
+      method: "GET",
+      query: query,
       format: "json",
       ...params,
     });

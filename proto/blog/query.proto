@@ -32,6 +32,13 @@ service Query {
 		option (google.api.http).get = "/blog/blog/comment";
 	}
 
+// Queries a list of Comments items.
+	rpc Comments(QueryCommentsRequest) returns (QueryCommentsResponse) {
+		option (google.api.http).get = "/blog/blog/comments/{id}";
+	}
+
+
+
 // this line is used by starport scaffolding # 2
 }
 
@@ -73,6 +80,22 @@ message QueryAllCommentRequest {
 message QueryAllCommentResponse {
 	repeated Comment Comment = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryCommentsRequest {
+  uint64 id = 1;
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+  
+}
+
+message QueryCommentsResponse {
+  string title = 1;
+  string body = 2;
+  Post Post = 3;
+  // Returning a list of comments
+repeated Comment Comment = 4;
+  // Adding pagination to response
+cosmos.base.query.v1beta1.PageResponse pagination = 5;
 }
 
 // this line is used by starport scaffolding # 3

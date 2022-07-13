@@ -40,11 +40,12 @@ message MsgDeleteComment {
   string creator = 1;
   uint64 commentID = 2;
   uint64 postID = 3;
-  uint64 id = 4
+  uint64 id = 4;
 }
 
 message MsgDeleteCommentResponse {
   uint64 id = 1;
 }
+
 
 // this line is used by starport scaffolding # proto/tx/message
