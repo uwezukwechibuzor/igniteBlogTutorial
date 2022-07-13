@@ -9,6 +9,7 @@ option go_package = "blog/x/blog/types";
 service Msg {
       rpc CreatePost(MsgCreatePost) returns (MsgCreatePostResponse);
   rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
+  rpc DeleteComment(MsgDeleteComment) returns (MsgDeleteCommentResponse);
 // this line is used by starport scaffolding # proto/tx/rpc
 }
 
@@ -32,6 +33,17 @@ message MsgCreateComment {
 }
 
 message MsgCreateCommentResponse {
+  uint64 id = 1;
+}
+
+message MsgDeleteComment {
+  string creator = 1;
+  uint64 commentID = 2;
+  uint64 postID = 3;
+  uint64 id = 4
+}
+
+message MsgDeleteCommentResponse {
   uint64 id = 1;
 }
 

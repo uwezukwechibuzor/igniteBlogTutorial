@@ -9,9 +9,16 @@ export interface Post {
   id: number;
   title: string;
   body: string;
+  createdAt: number;
 }
 
-const basePost: object = { creator: "", id: 0, title: "", body: "" };
+const basePost: object = {
+  creator: "",
+  id: 0,
+  title: "",
+  body: "",
+  createdAt: 0,
+};
 
 export const Post = {
   encode(message: Post, writer: Writer = Writer.create()): Writer {
@@ -26,6 +33,9 @@ export const Post = {
     }
     if (message.body !== "") {
       writer.uint32(34).string(message.body);
+    }
+    if (message.createdAt !== 0) {
+      writer.uint32(40).int64(message.createdAt);
     }
     return writer;
   },
@@ -48,6 +58,9 @@ export const Post = {
           break;
         case 4:
           message.body = reader.string();
+          break;
+        case 5:
+          message.createdAt = longToNumber(reader.int64() as Long);
           break;
         default:
           reader.skipType(tag & 7);
@@ -79,6 +92,11 @@ export const Post = {
     } else {
       message.body = "";
     }
+    if (object.createdAt !== undefined && object.createdAt !== null) {
+      message.createdAt = Number(object.createdAt);
+    } else {
+      message.createdAt = 0;
+    }
     return message;
   },
 
@@ -88,6 +106,7 @@ export const Post = {
     message.id !== undefined && (obj.id = message.id);
     message.title !== undefined && (obj.title = message.title);
     message.body !== undefined && (obj.body = message.body);
+    message.createdAt !== undefined && (obj.createdAt = message.createdAt);
     return obj;
   },
 
@@ -112,6 +131,11 @@ export const Post = {
       message.body = object.body;
     } else {
       message.body = "";
+    }
+    if (object.createdAt !== undefined && object.createdAt !== null) {
+      message.createdAt = object.createdAt;
+    } else {
+      message.createdAt = 0;
     }
     return message;
   },
