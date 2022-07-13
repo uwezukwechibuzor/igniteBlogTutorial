@@ -1,6 +1,11 @@
 /* eslint-disable */
 import { Reader, Writer } from "protobufjs/minimal";
 import { Params } from "../blog/params";
+import {
+  PageRequest,
+  PageResponse,
+} from "../cosmos/base/query/v1beta1/pagination";
+import { Post } from "../blog/post";
 
 export const protobufPackage = "blog.blog";
 
@@ -13,11 +18,18 @@ export interface QueryParamsResponse {
   params: Params | undefined;
 }
 
-export interface QueryPostsRequest {}
+export interface QueryPostsRequest {
+  /** Adding pagination to request */
+  pagination: PageRequest | undefined;
+}
 
 export interface QueryPostsResponse {
   title: string;
   body: string;
+  /** Returning a list of posts */
+  Post: Post[];
+  /** Adding pagination to response */
+  pagination: PageResponse | undefined;
 }
 
 const baseQueryParamsRequest: object = {};
@@ -120,7 +132,10 @@ export const QueryParamsResponse = {
 const baseQueryPostsRequest: object = {};
 
 export const QueryPostsRequest = {
-  encode(_: QueryPostsRequest, writer: Writer = Writer.create()): Writer {
+  encode(message: QueryPostsRequest, writer: Writer = Writer.create()): Writer {
+    if (message.pagination !== undefined) {
+      PageRequest.encode(message.pagination, writer.uint32(10).fork()).ldelim();
+    }
     return writer;
   },
 
@@ -131,6 +146,9 @@ export const QueryPostsRequest = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          message.pagination = PageRequest.decode(reader, reader.uint32());
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -139,18 +157,32 @@ export const QueryPostsRequest = {
     return message;
   },
 
-  fromJSON(_: any): QueryPostsRequest {
+  fromJSON(object: any): QueryPostsRequest {
     const message = { ...baseQueryPostsRequest } as QueryPostsRequest;
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageRequest.fromJSON(object.pagination);
+    } else {
+      message.pagination = undefined;
+    }
     return message;
   },
 
-  toJSON(_: QueryPostsRequest): unknown {
+  toJSON(message: QueryPostsRequest): unknown {
     const obj: any = {};
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageRequest.toJSON(message.pagination)
+        : undefined);
     return obj;
   },
 
-  fromPartial(_: DeepPartial<QueryPostsRequest>): QueryPostsRequest {
+  fromPartial(object: DeepPartial<QueryPostsRequest>): QueryPostsRequest {
     const message = { ...baseQueryPostsRequest } as QueryPostsRequest;
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageRequest.fromPartial(object.pagination);
+    } else {
+      message.pagination = undefined;
+    }
     return message;
   },
 };
@@ -168,6 +200,15 @@ export const QueryPostsResponse = {
     if (message.body !== "") {
       writer.uint32(18).string(message.body);
     }
+    for (const v of message.Post) {
+      Post.encode(v!, writer.uint32(26).fork()).ldelim();
+    }
+    if (message.pagination !== undefined) {
+      PageResponse.encode(
+        message.pagination,
+        writer.uint32(34).fork()
+      ).ldelim();
+    }
     return writer;
   },
 
@@ -175,6 +216,7 @@ export const QueryPostsResponse = {
     const reader = input instanceof Uint8Array ? new Reader(input) : input;
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = { ...baseQueryPostsResponse } as QueryPostsResponse;
+    message.Post = [];
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -183,6 +225,12 @@ export const QueryPostsResponse = {
           break;
         case 2:
           message.body = reader.string();
+          break;
+        case 3:
+          message.Post.push(Post.decode(reader, reader.uint32()));
+          break;
+        case 4:
+          message.pagination = PageResponse.decode(reader, reader.uint32());
           break;
         default:
           reader.skipType(tag & 7);
@@ -194,6 +242,7 @@ export const QueryPostsResponse = {
 
   fromJSON(object: any): QueryPostsResponse {
     const message = { ...baseQueryPostsResponse } as QueryPostsResponse;
+    message.Post = [];
     if (object.title !== undefined && object.title !== null) {
       message.title = String(object.title);
     } else {
@@ -204,6 +253,16 @@ export const QueryPostsResponse = {
     } else {
       message.body = "";
     }
+    if (object.Post !== undefined && object.Post !== null) {
+      for (const e of object.Post) {
+        message.Post.push(Post.fromJSON(e));
+      }
+    }
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromJSON(object.pagination);
+    } else {
+      message.pagination = undefined;
+    }
     return message;
   },
 
@@ -211,11 +270,21 @@ export const QueryPostsResponse = {
     const obj: any = {};
     message.title !== undefined && (obj.title = message.title);
     message.body !== undefined && (obj.body = message.body);
+    if (message.Post) {
+      obj.Post = message.Post.map((e) => (e ? Post.toJSON(e) : undefined));
+    } else {
+      obj.Post = [];
+    }
+    message.pagination !== undefined &&
+      (obj.pagination = message.pagination
+        ? PageResponse.toJSON(message.pagination)
+        : undefined);
     return obj;
   },
 
   fromPartial(object: DeepPartial<QueryPostsResponse>): QueryPostsResponse {
     const message = { ...baseQueryPostsResponse } as QueryPostsResponse;
+    message.Post = [];
     if (object.title !== undefined && object.title !== null) {
       message.title = object.title;
     } else {
@@ -225,6 +294,16 @@ export const QueryPostsResponse = {
       message.body = object.body;
     } else {
       message.body = "";
+    }
+    if (object.Post !== undefined && object.Post !== null) {
+      for (const e of object.Post) {
+        message.Post.push(Post.fromPartial(e));
+      }
+    }
+    if (object.pagination !== undefined && object.pagination !== null) {
+      message.pagination = PageResponse.fromPartial(object.pagination);
+    } else {
+      message.pagination = undefined;
     }
     return message;
   },
