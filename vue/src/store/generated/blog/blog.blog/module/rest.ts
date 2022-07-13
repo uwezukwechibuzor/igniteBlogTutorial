@@ -9,6 +9,20 @@
  * ---------------------------------------------------------------
  */
 
+export interface BlogComment {
+  /** @format uint64 */
+  id?: string;
+  creator?: string;
+  title?: string;
+  body?: string;
+
+  /** @format uint64 */
+  postID?: string;
+
+  /** @format int32 */
+  createdAt?: number;
+}
+
 export interface BlogMsgCreatePostResponse {
   /** @format uint64 */
   id?: string;
@@ -26,6 +40,25 @@ export interface BlogPost {
   id?: string;
   title?: string;
   body?: string;
+}
+
+export interface BlogQueryAllCommentResponse {
+  Comment?: BlogComment[];
+
+  /**
+   * PageResponse is to be embedded in gRPC response messages where the
+   * corresponding request message has used PageRequest.
+   *
+   *  message SomeResponse {
+   *          repeated Bar results = 1;
+   *          PageResponse page = 2;
+   *  }
+   */
+  pagination?: V1Beta1PageResponse;
+}
+
+export interface BlogQueryGetCommentResponse {
+  Comment?: BlogComment;
 }
 
 /**
@@ -319,10 +352,52 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title blog/genesis.proto
+ * @title blog/comment.proto
  * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryCommentAll
+   * @summary Queries a list of Comment items.
+   * @request GET:/blog/blog/comment
+   */
+  queryCommentAll = (
+    query?: {
+      "pagination.key"?: string;
+      "pagination.offset"?: string;
+      "pagination.limit"?: string;
+      "pagination.count_total"?: boolean;
+      "pagination.reverse"?: boolean;
+    },
+    params: RequestParams = {},
+  ) =>
+    this.request<BlogQueryAllCommentResponse, RpcStatus>({
+      path: `/blog/blog/comment`,
+      method: "GET",
+      query: query,
+      format: "json",
+      ...params,
+    });
+
+  /**
+   * No description
+   *
+   * @tags Query
+   * @name QueryComment
+   * @summary Queries a Comment by id.
+   * @request GET:/blog/blog/comment/{id}
+   */
+  queryComment = (id: string, params: RequestParams = {}) =>
+    this.request<BlogQueryGetCommentResponse, RpcStatus>({
+      path: `/blog/blog/comment/${id}`,
+      method: "GET",
+      format: "json",
+      ...params,
+    });
+
   /**
    * No description
    *
