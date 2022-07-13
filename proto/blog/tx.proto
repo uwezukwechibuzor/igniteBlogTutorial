@@ -8,6 +8,7 @@ option go_package = "blog/x/blog/types";
 // Msg defines the Msg service.
 service Msg {
       rpc CreatePost(MsgCreatePost) returns (MsgCreatePostResponse);
+  rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 // this line is used by starport scaffolding # proto/tx/rpc
 }
 
@@ -15,9 +16,22 @@ message MsgCreatePost {
   string creator = 1;
   string title = 2;
   string body = 3;
+  uint64 id = 4;
 }
 
 message MsgCreatePostResponse {
+  uint64 id = 1;
+}
+
+message MsgCreateComment {
+  string creator = 1;
+  uint64 postID = 2;
+  string title = 3;
+  string body = 4;
+  uint64 id = 5;
+}
+
+message MsgCreateCommentResponse {
   uint64 id = 1;
 }
 

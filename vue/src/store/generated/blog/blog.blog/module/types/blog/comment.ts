@@ -40,7 +40,7 @@ export const Comment = {
       writer.uint32(40).uint64(message.postID);
     }
     if (message.createdAt !== 0) {
-      writer.uint32(48).int32(message.createdAt);
+      writer.uint32(48).int64(message.createdAt);
     }
     return writer;
   },
@@ -68,7 +68,7 @@ export const Comment = {
           message.postID = longToNumber(reader.uint64() as Long);
           break;
         case 6:
-          message.createdAt = reader.int32();
+          message.createdAt = longToNumber(reader.int64() as Long);
           break;
         default:
           reader.skipType(tag & 7);

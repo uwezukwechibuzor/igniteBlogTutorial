@@ -7,4 +7,5 @@ message Post {
   uint64 id = 2;
   string title = 3; 
   string body = 4; 
+  int64 createdAt = 5;
 }
